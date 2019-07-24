@@ -17,7 +17,7 @@ Strukt\Fs::mkdir(sprintf("%s/AccountsModule", $app_dir));
 
 foreach(array(
 
-			"Command"
+			"Command",
 			"Contract",
 			"Controller",
 			"Seeder",
