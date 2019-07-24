@@ -32,6 +32,7 @@ $contents = str_replace("__APP__", $cfg["app-name"], Strukt\Fs::cat($acc_mod_fil
 
 Strukt\Fs::overwrite($acc_mod_file, $contents);
 Strukt\Fs::cpr(sprintf("%s/database", $pkg_dir), sprintf("%s/database", $app_root));
+Strukt\Fs::cpr(sprintf("%s/data", $pkg_dir), sprintf("%s/data", $app_root));
 
 Strukt\Fs::rename(sprintf("%s/console", $app_root), sprintf("%s/console~", $app_root));
 copy(sprintf("%s/console", $pkg_dir), sprintf("%s/console", $app_root));
