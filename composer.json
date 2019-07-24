@@ -11,7 +11,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-	   "dekor/php-array-table":"^1.0"
+        "strukt-do":"dev-master",
+        "dekor/php-array-table":"^1.0"
     },
     "bin":["bin/publish-strukt-books"]
 }
