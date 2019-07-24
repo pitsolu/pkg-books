@@ -1,0 +1,15 @@
+{
+    "data":[
+
+        "REVSALES:CASHOP",
+        "CASHPETTY:CASHOP",
+        "CASHOP:LTD",
+        "REVSALES:AR",
+        "CASHOP:CASHPETTY",
+        "LTD:CASHPETTY",
+        "CASHPETTY:REVSALES",
+        "AR:REVSALES",
+        "BANK:COGS",
+        "SALESRETNALL:CASHOP"
+    ]
+}

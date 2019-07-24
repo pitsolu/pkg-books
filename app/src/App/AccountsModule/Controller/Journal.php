@@ -1,0 +1,70 @@
+<?php
+
+namespace __APP__\AccountsModule\Controller;
+
+class Journal extends \Strukt\Contract\Controller{
+
+	public function getById($id){
+
+    	$journal = $this->da()->find("Journal", $id);
+
+    	return $journal;
+    }
+
+    public function ls(){
+
+	    $query = $this->da()->query("SELECT l.id, l.name FROM ~Journal l");
+
+	    $journals = $query->getResult();
+
+	    return $journals;
+	}
+
+	public function findByName($name){
+
+		$journal = $this->da()->repo('Journal')->findOneBy(array(
+
+			"name"=>$name
+		));
+
+	    return $journal;
+	}
+
+	public function add($name, $descr){
+
+		try{
+
+			$journal = $this->get("Coa");
+			$journal->setName($name);
+			$journal->setDescr($descr);
+			$journal->save();
+
+			return $journal->getId();
+		}
+		catch(\Exception $e){
+
+			$this->core()->get("app.logger")->error($e->getMessage());
+
+			return null;
+		}
+	}
+
+	public function update($id, $name, $descr){
+
+		try{
+
+			$journal = self::getById($id);
+			$journal->setName($name);
+			$journal->setDescr($descr);
+			$journal->save();
+
+			return true;
+		}
+		catch(\Exception $e){
+
+			$this->core()->get("app.logger")->error($e->getMessage());
+
+			return false;
+		}
+	}
+}

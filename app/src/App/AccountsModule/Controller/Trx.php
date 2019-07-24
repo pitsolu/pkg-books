@@ -1,0 +1,132 @@
+<?php
+
+namespace __APP__\AccountsModule\Controller;
+
+use Strukt\Util\DateTime;
+ 
+class Trx extends \Strukt\Contract\Controller{
+
+	public function getType($entry, $entry_type, $journal){
+
+		$entry = $this->get("ac.ctr.Entry")->findByNote($entry);
+		$type = $this->get("ac.ctr.EntryType")->findByName($entry_type);
+		$jrnl = $this->get("ac.ctr.Journal")->findByName($journal);
+
+		return array($entry, $type, $jrnl);
+	}
+
+	public function getById($id){
+
+    	$trx = $this->da()->find("Trx", $id);
+
+    	return $trx;
+	}
+
+	public function all(){
+
+		$currPeriod = $this->get("ac.ctr.Period")->getByStatus("Open");
+ 	
+		$dql = "SELECT cr.code as credit_code, 
+						dt.code as debit_code,
+						j.name as jourbal, 
+						e.note,
+						t.descr,
+						t.amount
+			FROM ~Trx t  
+			LEFT JOIN t.entry e
+			LEFT JOIN e.credit cr
+			LEFT JOIN e.debit dt
+			LEFT JOIN t.entryType p
+			LEFT JOIN t.journal j
+			WHERE t.createdAt BETWEEN :from AND :to";
+
+	    $query = $this->da()->query($dql);
+
+	    $query->setParameters(array(
+
+			"from"=>$currPeriod->getStart(),
+			"to"=>$currPeriod->getEnd()
+		));
+
+	    $trxs = $query->getResult();
+
+	    return $trxs;
+	}
+
+	private function getQb(Array $filter = []){
+
+		$qb = $this->da()->repo("Trx")->createQueryBuilder("t");
+
+		$qb->addSelect("t.id, t.amount, t.descr, t.createdAt");
+
+		if(array_key_exists("descr", $filter)){
+
+			$qb->andWhere("t.descr LIKE :descr")
+				->setParameter("descr", sprintf("%%%s%%", $filter['descr']));
+		}
+
+		$qb->orderBy("t.id", "ASC");
+
+		return $qb;
+	}
+
+	public function pager(Array $filter = [], $start_from, $page_size){
+
+		$qb = $this->getQb($filter);		
+
+		$pager = $this->da()->paginate($qb, $start_from, $page_size);
+
+		return $pager;
+	}
+
+	public function getDaily($day="today"){
+
+		$from = new DateTime($day);
+		$from->beginDay();
+
+		$to = new DateTime($day);
+		$to->endDay();
+
+		return $this->findByCreatedAt($from, $to);
+	}
+
+	public function findByCreatedAt(\DateTime $date, \DateTime $to = null){
+
+		$qb = $qb = $this->getQb([]);
+
+		$qb->andWhere('t.createdAt BETWEEN :from AND :to')
+        	->setParameter('from', $date)
+			->setParameter('to', $to);
+
+		$result = $qb->getQuery()->getResult();
+
+    	return $result;
+	}
+
+	public function add($amt, 
+						\__APP__\Entry $entry, 
+						\__APP__\EntryType $type, 
+						\__APP__\Journal $jrnl = null, 
+						$descr = "N/A"){
+
+		try{
+
+			$trx = $this->get("Trx");
+			$trx->setJournal($jrnl);
+			$trx->setEntry($entry);
+			$trx->setEntryType($type);
+			$trx->setAmount($amt);
+			$trx->setDescr($descr);
+			$trx->setCreatedAt(new \DateTime());
+			$trx->save();
+
+			return $trx->getId();
+		}
+		catch(\Exception $e){
+
+			$this->core()->get("app.logger")->error($e->getMessage());
+
+			return null;
+		}
+	}
+}

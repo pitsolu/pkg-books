@@ -1,0 +1,97 @@
+<?php
+
+namespace __APP__\AccountsModule\Controller;
+
+use Strukt\Util\DateTime;
+use __APP__\AccountsModule\Contract\Period as PeriodContract; 
+
+abstract class PeriodRange extends \Strukt\Contract\Controller implements PeriodContract{
+
+	public function getDaily($day="today"){
+
+		$from = new DateTime($day);
+		$from->beginDay();
+
+		$to = new DateTime($day);
+		$to->endDay();
+
+		return $this->findByCreatedAt($from, $to);
+	}
+
+	public function getOpenDays(){
+
+		$currPeriod = $this->get("ac.ctr.Period")->getByStatus("Open");
+
+		$start = $currPeriod->getStart();
+		$end = new \DateTime();
+
+		while($start->diff($end)->format("%a")){
+
+			$date = $start->format("Y-m-d");
+
+			if(!$this->isDayClosed($date))	
+				$openDays[] = $date;
+
+			$start = $start->modify("+1 day");
+		}
+
+		return $openDays;
+	}
+
+	public function closeDayRange(\DateTime $start, \DateTime $end){
+
+		$start = new DateTime($start->format("Y-m-d H:i:s.u"));
+		$end = new DateTime($end->format("Y-m-d H:i:s.u"));
+		$end = $end->modify("+1 day");
+
+		$start->beginDay();
+		// $end->endDay();
+
+		$em = $this->em();
+
+		$conn = $em->getConnection();
+
+		$conn->beginTransaction();														
+
+		try{
+
+			while($start->diff($end)->format("%a")){
+
+				$startDate = $start->format("Y-m-d H:i:s");
+
+				$map = sha1(sprintf("%s-%s", rand(), $startDate));
+
+				$this->closeDay($map, $startDate);
+
+				$start = $start->modify("+1 day");
+			}
+
+			$conn->commit();
+
+			return true;
+		}
+		catch(\Exception $e){
+
+			$conn->rollBack();
+
+			$this->core()->get("app.logger")->error($e->getMessage());
+
+			return false;
+		}
+	}
+
+	public function findByCreatedAt(\DateTime $date, \DateTime $to){
+
+		throw new \Exception("AbstractPeriod::findByCreatedAt Not yet implemented!");
+	}
+
+	public function isDayClosed($day){
+		
+		throw new \Exception("AbstractPeriod::isDayClosed Not yet implemented!");
+	}
+
+	public function closeDay($map, $day, $descr){
+
+		throw new \Exception("AbstractPeriod::closeDay Not yet implemented!");
+	}
+}

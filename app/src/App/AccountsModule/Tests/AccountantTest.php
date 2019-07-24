@@ -1,0 +1,28 @@
+<?php
+
+class AccountantTest extends App\Contract\AbstractTestCase{
+
+	public function testBalances(){
+
+	    $coa_ls = $this->get("ac.ctr.Coa")->ls();
+
+	    $coas = array();
+		foreach ($coa_ls as $coa)
+			$coas[$coa["code"]] = $coa["alias"];
+
+	    $acct = $this->get("ac.ctr.Accountant", array($coas));
+
+	    $trxs = $this->get("ac.ctr.Trx")->all();
+
+	    foreach($trxs as $trx){
+
+			$balances = $acct->transfer($trx["credit_code"], $trx["debit_code"], $trx["amount"]);
+	    }
+
+		foreach($balances as $alias=>$balance)
+			if($balance > 0 || $balance < 0)
+				echo sprintf("\n%s --> %s", $alias, $balance);
+
+	    $this->assertEquals(array_sum($balances), 0);
+	}
+}

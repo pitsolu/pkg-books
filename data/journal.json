@@ -1,0 +1,46 @@
+{
+    "table":"journal",
+    "data":[
+
+        {
+            "id": 1,
+            "name": "General",
+            "descr": "Shows all entries for anything not recorded in any of the journals above"
+        },
+        {
+            "id": 2,
+            "name": "Purchase",
+            "descr": "Record all purchases of inventory on credit"
+        },
+        {
+            "id": 3,
+            "name": "Sales",
+            "descr": "Where all sales on credit are recorded"
+        },
+        {
+            "id": 4,
+            "name": "Disbursement",
+            "descr": "Cash Payment"
+        },
+        {
+            "id": 5,
+            "name": "Purchases Returns (PRJ)",
+            "descr": "Shows all returns of inventory that were originally purchased on credit"
+        },
+        {
+            "id": 6,
+            "name": "Sales Return (SRJ)",
+            "descr": "Where goods that were originally sold have now been returned"
+        },
+        {
+            "id": 7,
+            "name": "Cash Payments (CPJ)",
+            "descr": "Record all transactions where cash has been paid out"
+        },
+        {
+            "id": 8,
+            "name": "Cash Receipts (CRJ)",
+            "descr": "Record all cash that has been received"
+        }
+    ]
+}

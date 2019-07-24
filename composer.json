@@ -1,0 +1,17 @@
+{
+    "name": "strukt/books",
+    "description": "accounting",
+    "type": "strukt-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "pitsolu",
+            "email": "pitsolu@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+	   "dekor/php-array-table":"^1.0"
+    },
+    "bin":["bin/publish-strukt-books"]
+}

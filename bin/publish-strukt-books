@@ -1,0 +1,45 @@
+#!/usr/bin/env php
+<?php
+
+$app_root = realpath(__DIR__."/../../../../");
+$pkg_dir = realpath(__DIR__."/../");
+
+$cfg = parse_ini_file(sprintf("%s/cfg/app.ini", $app_root));
+
+if(trim($cfg["app-name"]) == "__APP__")
+	throw new \Exception("Create an cfg[app-name] in your cfg/app.ini file via generate:app cli cmd!");
+
+require(sprintf("%s/vendor/autoload.php", $app_root));
+
+$app_dir = sprintf("%s/app/src/%s", $app_root, $cfg["app-name"]);
+Strukt\Fs::rename(sprintf("%s/AccountsModule", $app_dir), sprintf("%s/AccountsModule~", $app_dir));
+Strukt\Fs::mkdir(sprintf("%s/AccountsModule", $app_dir));
+
+foreach(array(
+
+			"Command"
+			"Contract",
+			"Controller",
+			"Seeder",
+			"Tests"
+
+		) as $folder)
+			Strukt\Fs::mkdir(sprintf("%s/AccountsModule/%s", $app_dir, $folder));
+
+$acc_mod_file = sprintf("%s/AccountsModule/%sAccountsModule.php", $app_dir, $cfg["app-name"]);
+copy(sprintf("%s/app/src/App/AccountsModule/AccountsModule.php", $pkg_dir), $acc_mod_file);
+$contents = str_replace("__APP__", $cfg["app-name"], Strukt\Fs::cat($acc_mod_file));
+
+Strukt\Fs::overwrite($acc_mod_file, $contents);
+Strukt\Fs::cpr(sprintf("%s/database", $pkg_dir), sprintf("%s/database", $app_root));
+
+Strukt\Fs::rename(sprintf("%s/console", $app_root), sprintf("%s/console~", $app_root));
+copy(sprintf("%s/console", $pkg_dir), sprintf("%s/console", $app_root));
+
+foreach(glob(sprintf("%s/app/**/**/**/**/**", $pkg_dir)) as $file){
+
+	$path = str_replace(array($pkg_dir, "/App/"), array("", sprintf("/%s/", $cfg["app-name"])), $file);
+	$content = str_replace("__APP__", $cfg["app-name"], file_get_contents($file));
+	$file = new SplFileObject($app_root.$path, "w+"); 
+	$file->fwrite($content);
+} 

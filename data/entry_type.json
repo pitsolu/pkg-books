@@ -1,0 +1,21 @@
+{
+    "table":"entry_type",
+    "data":[
+
+        {
+        	"name":"Transaction"
+        },
+        {
+        	"name":"Adjustment"
+        },
+        {
+        	"name":"Reconciliation"
+        },
+        {
+        	"name":"Reversal"
+        },
+        {
+        	"name":"Closing"
+        }
+    ]
+}

@@ -1,0 +1,54 @@
+<?php
+
+namespace __APP__\AccountsModule\Controller;
+
+use Strukt\Util\Number;
+
+class Accountant extends \Strukt\Contract\Controller{
+
+	private $coa;
+	private $balances;
+
+	public function __construct(Array $coas){
+
+		$this->coas = $coas;
+		$this->balances = array();
+
+		foreach($this->coas as $code=>$alias)
+			$this->balances[$alias] = 0;
+	}
+
+	public function transfers(Array $trxs){
+
+		foreach($trxs as $trx)
+			$this->transfer(...$trx);
+
+		return $this->balances;
+	}
+
+	public function from($code, $amount){
+
+		$alias = $this->coas[$code];
+
+		$balance = new Number($this->balances[$alias]);
+
+		$this->balances[$alias] = $balance->subtract($amount)->yield();
+	}
+
+	public function to($code, $amount){
+
+		$alias = $this->coas[$code];
+
+		$balance = new Number($this->balances[$alias]);
+
+		$this->balances[$alias] = $balance->add($amount)->yield();
+	}
+
+	public function transfer($credit_code, $debit_code, $amount){
+
+		$this->from($credit_code, $amount);
+		$this->to($debit_code, $amount);
+		
+		return $this->balances;	
+	}
+}

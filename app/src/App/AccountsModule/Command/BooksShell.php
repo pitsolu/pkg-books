@@ -1,0 +1,322 @@
+<?php
+
+namespace __APP__\AccountsModule\Command;
+
+use Strukt\Console\Input;
+use Strukt\Console\Output;
+use dekor\ArrayToTextTable;
+
+/**
+* books:shell
+*/
+class BooksShell extends \App\Contract\AbstractCommand{
+
+	public function __construct(){
+
+
+		$this->trxCtrl = $this->get("ac.ctr.Trx");
+		$this->coaCtrl = $this->get("ac.ctr.Coa");
+		$this->journalCtrl = $this->get("ac.ctr.Journal");
+		$this->entryTypeCtrl= $this->get("ac.ctr.EntryType");
+		$this->entryCtrl= $this->get("ac.ctr.Entry");
+
+		$this->normalizer = $this->core()->get("app.service.normalizer");
+	}
+
+	public function entryLs(){
+
+		$rs = $this->entryCtrl->ls();
+
+		$table = new ArrayToTextTable($rs);
+
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function entryTypeLs(){
+
+		$rs = $this->entryTypeCtrl->ls();
+
+		$table = new ArrayToTextTable($rs);
+
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function trxLs(){
+
+		$rs = $this->trxCtrl->all();
+
+		$table = new ArrayToTextTable($rs);
+
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function journalLs(){
+
+		$rs = $this->journalCtrl->ls();
+
+		$table = new ArrayToTextTable($rs);
+
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function coaLs(){
+
+		$rs = $this->coaCtrl->ls();
+
+		$table = new ArrayToTextTable($rs);
+
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function coa($cmd){
+
+		$rs = [];
+
+		if(preg_match("/^coa \w+$/", $cmd)){
+
+			$params = array_map(function($item){
+
+				if(!empty($item))
+					return $item;
+
+			},explode(" ", $cmd));
+
+			array_shift($params);
+
+			$filter = array_shift($params);
+		}
+
+		if(is_numeric($filter))
+			$rs = array($this->normalizer->toArray($this->coaCtrl->findByCode($filter)));
+		
+		if(empty($rs))
+			$rs = $this->coaCtrl->findByName($filter);
+	
+		if(!empty($rs[0])){
+
+			$table = new ArrayToTextTable($rs);
+			echo sprintf("%s\n\n", $table->render());
+		}
+	}
+
+	public function getCmd($cmd){
+
+		$params = array_map(function($item){
+
+			if(!empty($item))
+				return $item;
+
+		},explode(" ", $cmd));
+
+		array_shift($params);
+
+		return $params;
+	}
+
+	public function makeTrx($params){
+
+		array_shift($params);
+
+		$amount = array_shift($params);
+		$entry = strtoupper(array_shift($params));//note
+		$journal = ucfirst(array_shift($params));
+
+		if(!empty($params)){
+
+			$descr = implode(" ", $params);
+		}
+
+		if(is_null($journal))
+			$journal = "General";
+
+		if(is_null($entry_type))
+			$entry_type = "Transaction";
+
+		if(is_null($descr))
+			$descr = "N/A";
+
+		list($entry, 
+				$entry_type, 
+				$journal) = $this->trxCtrl->getType($entry, $entry_type, $journal);
+
+		$trxId = $this->trxCtrl->add($amount, $entry, $entry_type, $journal, $descr);
+
+		$trx = $this->trxCtrl->getById($trxId);
+
+		$table = new ArrayToTextTable(array(array(
+
+			"id"=>$trx->getId(),
+			"note"=>$trx->getEntry()->getNote(),
+			"journal"=>$trx->getJournal()->getName(),
+			"amount"=>$trx->getAmount(),
+			"descr"=>$trx->getDescr(),
+			"created_at"=>$trx->getCreatedAt()->format("Y-m-d H:i:s")
+		)));
+
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function makeTrxEntry($note){
+
+		list($from, $to) = explode(":", strtoupper($note));
+
+		$credit = $this->coaCtrl->findByAlias($from);
+		$debit = $this->coaCtrl->findByAlias($to);
+
+		if(!empty($credit) && !empty($debit)){
+
+			$entryId = $this->entryCtrl->add($credit, $debit, $note);
+			$entry = $this->entryCtrl->getById($entryId);
+
+			$table = new ArrayToTextTable(array(array(
+
+				"id"=>$entry->getId(),
+				"note"=>$entry->getNote(),
+				"status"=>$entry->getStatus(),
+				"created_at"=>$entry->getCreatedAt()->format("Y-m-d H:i:s")
+			)));
+
+			echo sprintf("%s\n\n", $table->render());
+		}
+	}
+
+	public function make($cmd){
+
+		$params = $this->getCmd($cmd);
+
+		if(preg_match("/^make\s+trx/", $cmd)){
+
+			$this->makeTrx($params);
+		}
+		
+		if(preg_match("/^make\s+(te|et)\s+\w+\:\w+$/", $cmd)){
+
+			$subcmd = array_shift($params);
+
+			if(in_array($subcmd, array("te", "et"))){
+
+				if($subcmd == "te"){
+
+					$note = array_shift($params);
+
+					$this->makeTrxEntry($note);
+				}
+			}
+		}
+	}
+
+	public function getBal(){
+
+		$coa_ls = $this->coaCtrl->ls();
+
+	    $coas = array();
+		foreach ($coa_ls as $coa)
+			$coas[$coa["code"]] = $coa["alias"];
+
+	    $acct = $this->get("ac.ctr.Accountant", array($coas));
+
+	    $trxs = $this->trxCtrl->all();
+
+	    foreach($trxs as $trx)
+			$balances = $acct->transfer($trx["credit_code"], $trx["debit_code"], $trx["amount"]);
+
+		foreach($balances as $alias=>$balance)
+			if($balance > 0 || $balance < 0)
+				$bals[] = array("accounts"=>$alias, "balances"=>$balance);
+
+		$table = new ArrayToTextTable($bals);
+		echo sprintf("%s\n\n", $table->render());
+	}
+
+	public function execute(Input $in, Output $out){
+
+		$cmds = array(
+
+			"journals-ls" => array("ls journals", "ls journal", "ls j"),
+			"entry-type-ls" => array("ls entry_type", "ls entrytype", "ls et"),
+			"entry-ls" => array("ls trans_entry", "ls transentry", "ls te"),
+			"coa-ls" => array("ls coa", "ls c"),
+			"bal-ls"=> array("ls bal", "ls b"),
+			"trx-ls" => array("ls trx", "ls t"),
+			"coa"=>array("coa [<code_or_name>]"),
+			"make-te" => array("make te <entry_or_note>"), 
+			"make-trx" => array("make trx <amount> <note> [<journal> [<descr>]]"), 
+			"help"=>array("help", "h"),
+			"list"=>array("list", "ls", "l"),
+			"exit"=>array("exit", "ex", "e")
+		);
+
+		while(true){
+
+			$cmd = trim($in->getInput("$ "));
+
+			$cmd = trim(preg_replace('/\s\s+/', ' ', str_replace("\n", " ", $cmd)));
+
+			$filter = null;
+
+			if(in_array($cmd, $cmds["exit"])){
+
+				break;
+			}
+			else if(in_array($cmd, array("list", "l", "ls"))){
+
+				foreach(array($cmds["journals-ls"],
+						$cmds["entry-type-ls"],
+						$cmds["entry-ls"],
+						$cmds["coa-ls"],
+						$cmds["trx-ls"]) as $lcmd){
+
+					echo sprintf("\n%s", implode(", ", $lcmd));
+				}
+
+				echo "\n\n";
+			}
+			else if(in_array($cmd, array("h", "help"))){
+
+				foreach(array($cmds["coa"],
+						$cmds["make-te"],
+						$cmds["make-trx"],
+						$cmds["help"],
+						$cmds["list"],
+						$cmds["exit"]) as $lcmd){
+
+					echo sprintf("\n%s", implode(", ", $lcmd));
+				}
+
+				echo "\n\n";
+			}
+			else if(in_array($cmd, $cmds["journals-ls"])){
+
+				$this->journalLs();
+			}
+			else if(in_array($cmd, $cmds["trx-ls"])){
+
+				$this->trxLs();
+			}
+			else if(in_array($cmd, $cmds["entry-type-ls"])){
+
+				$this->entryTypeLs();
+			}
+			else if(in_array($cmd, $cmds["entry-ls"])){
+
+				$this->entryLs();
+			}
+			else if(in_array($cmd, $cmds["coa-ls"])){
+
+				$this->coaLs();
+			}
+			else if(in_array($cmd, $cmds["bal-ls"])){
+
+				$this->getBal();
+			}
+			else if(preg_match("/^make \w+|make$/", $cmd)){
+
+				$this->make($cmd);
+			}
+			else if(preg_match("/^coa \w+|coa$/", $cmd)){
+
+				$this->coa($cmd);
+			}
+		}	
+	}
+}

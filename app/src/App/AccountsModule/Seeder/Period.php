@@ -1,0 +1,23 @@
+<?php
+
+namespace __APP__\AccountsModule\Command;
+
+class Period extends \App\Contract\AbstractSeeder{
+
+	public function up(){
+
+		$this->down();
+
+		$conn = $this->core()->get("app.em")->getConnection();
+
+		$periodSeeder = new \Seed\Period20190202004705();
+		$periodSeeder->up($conn);
+	}
+
+	public function down(){
+
+		$em = $this->core()->get("app.em")->getConnection();
+
+		$conn->exec("DELETE FROM period WHERE status = 'Open'");
+	}
+}
