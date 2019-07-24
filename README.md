@@ -67,16 +67,16 @@ Now run the migrations.
 ./console migrate:exec
 ```
 
-Now, run the seeders.
-
-```sh
-./console seeder:exec
-```
-
 You'll now need to generate your application models:
 
 ```sh
 ./console generate:models
+```
+
+If you may need to, run the seeders.
+
+```sh
+./console seeder:exec
 ```
 
 ### Shell
