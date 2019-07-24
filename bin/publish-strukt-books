@@ -36,6 +36,12 @@ Strukt\Fs::cpr(sprintf("%s/database", $pkg_dir), sprintf("%s/database", $app_roo
 Strukt\Fs::rename(sprintf("%s/console", $app_root), sprintf("%s/console~", $app_root));
 copy(sprintf("%s/console", $pkg_dir), sprintf("%s/console", $app_root));
 
+$abs_seeder_file = "lib/App/Contract/AbstractSeeder.php";
+Strukt\Fs::rename(sprintf("%s/%s", $app_root, $abs_seeder_file),
+					sprintf("%s/%s~", $app_root, $abs_seeder_file));
+copy(sprintf("%s/%s", $pkg_dir, $abs_seeder_file), 
+		sprintf("%s/%s", $app_root, $abs_seeder_file));
+
 foreach(glob(sprintf("%s/app/**/**/**/**/**", $pkg_dir)) as $file){
 
 	$path = str_replace(array($pkg_dir, "/App/"), array("", sprintf("/%s/", $cfg["app-name"])), $file);
