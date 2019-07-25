@@ -7,8 +7,6 @@ Project `strukt/books` is a `strukt` module for accountancy.
 
 ### Installation
 
-Install `strukt/books`:
-
 ```sh
 composer require strukt/books
 composer exec publish-strukt-do
@@ -44,7 +42,7 @@ If you may need to, run the seeders.
 
 ### Shell
 
-Drop into accounting shell do `list` and/or `help`
+After dropping into shell do `list` and/or `help`
 
 ```sh
 ./console books:shell
