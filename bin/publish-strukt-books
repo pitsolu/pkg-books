@@ -29,8 +29,10 @@ foreach($manifest_files as $file){
 
 		$dir = sprintf("%s/%s", $app_root, $dir);
 
-		if(!Fs::isDir($dir))
+		if(!Fs::isDir($dir)){
+
 			Fs::mkdir($dir);
+		}
 
 		$o_file = sprintf("%s/%s", $dir, $info["basename"]);
 		$p_file = sprintf("%s/%s/%s", $pkg_dir, $info["dirname"], $info["basename"]);
@@ -45,3 +47,7 @@ foreach($manifest_files as $file){
 		$file->fwrite($content);
 	}
 }
+
+$o_path = sprintf("%s/app/src/%s/AccountsModule", $app_root, $cfg["app-name"]);
+rename(sprintf("%s/AccountsModule.php", $o_path), 
+		sprintf("%s/%sAccountsModule.php", $o_path, $cfg["app-name"]));
