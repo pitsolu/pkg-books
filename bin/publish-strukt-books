@@ -4,51 +4,44 @@
 $app_root = realpath(__DIR__."/../../../../");
 $pkg_dir = realpath(__DIR__."/../");
 
+// $app_root = realpath(__DIR__."/../../");
+// $pkg_dir = realpath(__DIR__."/../");
+
 $cfg = parse_ini_file(sprintf("%s/cfg/app.ini", $app_root));
 
 if(trim($cfg["app-name"]) == "__APP__")
-	throw new \Exception("Create an cfg[app-name] in your cfg/app.ini file via generate:app cli cmd!");
+	throw new \Exception(
+		"Create an cfg[app-name] in your [cfg/app.ini] file via [generate:app cli] cmd!");
 
 require(sprintf("%s/vendor/autoload.php", $app_root));
 
-$app_dir = sprintf("%s/app/src/%s", $app_root, $cfg["app-name"]);
-Strukt\Fs::rename(sprintf("%s/AccountsModule", $app_dir), sprintf("%s/AccountsModule~", $app_dir));
-Strukt\Fs::mkdir(sprintf("%s/AccountsModule", $app_dir));
+use Strukt\Fs;
 
-foreach(array(
+$manifest_files = explode("\n", Fs::cat(sprintf("%s/manifest", $pkg_dir)));
 
-			"Command",
-			"Contract",
-			"Controller",
-			"Seeder",
-			"Tests"
+foreach($manifest_files as $file){
 
-		) as $folder)
-			Strukt\Fs::mkdir(sprintf("%s/AccountsModule/%s", $app_dir, $folder));
+	$info = pathinfo($file);
 
-$acc_mod_file = sprintf("%s/AccountsModule/%sAccountsModule.php", $app_dir, $cfg["app-name"]);
-copy(sprintf("%s/app/src/App/AccountsModule/AccountsModule.php", $pkg_dir), $acc_mod_file);
-$contents = str_replace("__APP__", $cfg["app-name"], Strukt\Fs::cat($acc_mod_file));
+	if(array_key_exists("dirname", $info)){
 
-Strukt\Fs::overwrite($acc_mod_file, $contents);
-Strukt\Fs::cpr(sprintf("%s/database", $pkg_dir), sprintf("%s/database", $app_root));
+		$dir = str_replace("app/src/App", sprintf("app/src/%s", $cfg["app-name"]), $info["dirname"]);
 
-Strukt\Fs::mkdir(sprintf("%s/data", $app_root));
-Strukt\Fs::cpr(sprintf("%s/data", $pkg_dir), sprintf("%s/data", $app_root));
+		$dir = sprintf("%s/%s", $app_root, $dir);
 
-Strukt\Fs::rename(sprintf("%s/console", $app_root), sprintf("%s/console~", $app_root));
-copy(sprintf("%s/console", $pkg_dir), sprintf("%s/console", $app_root));
+		if(!Fs::isDir($dir))
+			Fs::mkdir($dir);
 
-$abs_seeder_file = "lib/App/Contract/AbstractSeeder.php";
-Strukt\Fs::rename(sprintf("%s/%s", $app_root, $abs_seeder_file),
-					sprintf("%s/%s~", $app_root, $abs_seeder_file));
-copy(sprintf("%s/%s", $pkg_dir, $abs_seeder_file), 
-		sprintf("%s/%s", $app_root, $abs_seeder_file));
+		$o_file = sprintf("%s/%s", $dir, $info["basename"]);
+		$p_file = sprintf("%s/%s/%s", $pkg_dir, $info["dirname"], $info["basename"]);
 
-foreach(glob(sprintf("%s/app/**/**/**/**/**", $pkg_dir)) as $file){
+		if(Fs::isFile($o_file)){
 
-	$path = str_replace(array($pkg_dir, "/App/"), array("", sprintf("/%s/", $cfg["app-name"])), $file);
-	$content = str_replace("__APP__", $cfg["app-name"], file_get_contents($file));
-	$file = new SplFileObject($app_root.$path, "w+"); 
-	$file->fwrite($content);
-} 
+			rename($o_file, sprintf("%s~", $o_file));
+		}
+
+		$content = str_replace("__APP__", $cfg["app-name"], Fs::cat($p_file));
+		$file = new SplFileObject($o_file, "w+"); 
+		$file->fwrite($content);
+	}
+}
