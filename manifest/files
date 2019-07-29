@@ -22,8 +22,6 @@ app/src/App/AccountsModule/Seeder/Trx.php
 app/src/App/AccountsModule/Seeder/Period.php
 app/src/App/AccountsModule/Tests/AccountantTest.php
 app/src/App/AccountsModule/Tests/PeriodTest.php
-composer.json
-README.md
 data/entry_type.json
 data/coa.xls
 data/_entry.json
