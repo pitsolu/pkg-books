@@ -5,7 +5,6 @@ database/seeder/Seed/Type20190110130300.php
 database/seeder/Seed/Coa20190103194937.php
 database/seeder/Seed/Trx20190110144418.php
 database/seeder/Seed/Entry20190110130252.php
-console
 app/src/App/AccountsModule/AccountsModule.php
 app/src/App/AccountsModule/Contract/Period.php
 app/src/App/AccountsModule/Controller/PeriodRange.php
