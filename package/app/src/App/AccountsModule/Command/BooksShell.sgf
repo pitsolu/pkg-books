@@ -1,6 +1,6 @@
 <?php
 
-namespace __APP__\AccountsModule\Command;
+namespace {{app}}\AccountsModule\Command;
 
 use Strukt\Console\Input;
 use Strukt\Console\Output;

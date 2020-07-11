@@ -1,0 +1,9 @@
+<?php
+
+namespace {{app}}\AccountsModule;
+
+class {{app}}AccountsModule extends \Strukt\Contract\Module{
+
+	protected  $alias = "Ac";
+
+}

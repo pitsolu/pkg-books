@@ -1,9 +1,9 @@
 <?php
 
-namespace __APP__\AccountsModule\Controller;
+namespace {{app}}\AccountsModule\Controller;
 
 use Strukt\Util\DateTime;
-use __APP__\AccountsModule\Contract\Period as PeriodContract; 
+use {{app}}\AccountsModule\Contract\Period as PeriodContract; 
 
 abstract class PeriodRange extends \Strukt\Contract\Controller implements PeriodContract{
 

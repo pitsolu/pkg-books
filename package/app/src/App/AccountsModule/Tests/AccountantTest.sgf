@@ -1,5 +1,7 @@
 <?php
 
+namespace {{app}}\AccountsModule\Tests;
+
 class AccountantTest extends App\Contract\AbstractTestCase{
 
 	public function testBalances(){

@@ -1,6 +1,6 @@
 <?php
 
-namespace __APP__\AccountsModule\Command;
+namespace {{app}}\AccountsModule\Command;
 
 class Period extends \App\Contract\AbstractSeeder{
 

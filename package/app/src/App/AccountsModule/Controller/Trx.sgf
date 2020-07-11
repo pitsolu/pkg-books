@@ -1,6 +1,6 @@
 <?php
 
-namespace __APP__\AccountsModule\Controller;
+namespace {{app}}\AccountsModule\Controller;
 
 use Strukt\Util\DateTime;
  
@@ -104,9 +104,9 @@ class Trx extends \Strukt\Contract\Controller{
 	}
 
 	public function add($amt, 
-						\__APP__\Entry $entry, 
-						\__APP__\EntryType $type, 
-						\__APP__\Journal $jrnl = null, 
+						\{{app}}\Entry $entry, 
+						\{{app}}\EntryType $type, 
+						\{{app}}\Journal $jrnl = null, 
 						$descr = "N/A"){
 
 		try{

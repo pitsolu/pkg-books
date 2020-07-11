@@ -1,5 +1,7 @@
 <?php
 
+namespace {{app}}\AccountsModule\Tests;
+
 use Strukt\Util\DateTime;
 
 class PeriodTest extends App\Contract\AbstractTestCase{
