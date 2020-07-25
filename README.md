@@ -3,19 +3,23 @@ Strukt Books
 
 ## Getting Started
 
-Project `strukt/books` is a `strukt` module for accountancy.
+Project `strukt/pkg-books` is a `strukt` module for accountancy.
+
+### Prerequisite
+
+Install `strukt/strukt` and generate application also use commands below:
+
+```sh
+composer create-project strukt/strukt:dev-master --prefer-dist
+console generate:app yourappname
+```
 
 ### Installation
 
 ```sh
-composer require strukt/books
-composer exec publish-strukt-do
-composer exec config-do
-./console generate:app nameofyourapp
-./console generate:loader
-composer exec publish-strukt-books
-./console~ generate:loader #note the ~
-chmod +x console
+composer require strukt/pkg-books
+composer publish:package strukt/pkg-books
+console generate:loader
 ```
 
 ### Database Setup: Migrations, Models & Seeders
