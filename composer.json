@@ -1,5 +1,5 @@
 {
-    "name": "strukt/books",
+    "name": "strukt/pkg-books",
     "description": "accounting",
     "type": "strukt-module",
     "license": "MIT",
