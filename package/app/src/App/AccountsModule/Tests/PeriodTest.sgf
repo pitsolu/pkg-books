@@ -6,6 +6,11 @@ use Strukt\Util\DateTime;
 
 class PeriodTest extends App\Contract\AbstractTestCase{
 
+	public function setUp():void{
+
+		//
+	}
+
 	public function testIsOpen(){
 
 		$periodCtr = $this->get("ac.ctr.Period");

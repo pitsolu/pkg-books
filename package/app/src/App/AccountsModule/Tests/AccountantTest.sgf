@@ -4,6 +4,11 @@ namespace {{app}}\AccountsModule\Tests;
 
 class AccountantTest extends App\Contract\AbstractTestCase{
 
+	public function setUp():void{
+
+		//
+	}
+
 	public function testBalances(){
 
 	    $coa_ls = $this->get("ac.ctr.Coa")->ls();
