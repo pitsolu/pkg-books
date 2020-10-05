@@ -29,7 +29,8 @@
 		"data/coa.xls",
 		"data/_entry.json",
 		"data/journal.json",
-		"lib/App/Contract/AbstractSeeder.php"
+		"lib/App/Contract/AbstractSeeder.php",
+		"lib/App/Package/PkgBooks.php"
 	],
 	"modules":[
 
