@@ -10,7 +10,12 @@
         }
     ],
     "minimum-stability": "dev",
+    "autoload": {
+
+        "psr-0": { "Strukt\\": "src/"}
+    },
     "require": {
+        
         "strukt/pkg-do":"dev-master",
         "dekor/php-array-table":"^1.0"
     }
