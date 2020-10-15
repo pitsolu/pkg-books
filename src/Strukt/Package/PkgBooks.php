@@ -65,4 +65,9 @@ class PkgBooks implements Pkg{
 
 		return $this->manifest["modules"];
 	}
+
+	public function isInstalled(){
+
+		return class_exists(\Schema\Migration\VersionAccounts::class);
+	}
 }
