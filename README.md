@@ -18,7 +18,8 @@ console generate:app yourappname
 
 ```sh
 composer require strukt/pkg-books
-composer publish:package strukt/pkg-books
+composer publish:package pkg-do
+composer publish:package pkg-books
 console generate:loader
 ```
 
